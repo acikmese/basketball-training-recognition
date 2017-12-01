@@ -8,10 +8,14 @@
 % ranked by every algorithm and creates reduced dataset.
 % Then, it normalizes data and does k-fold cross validation with SVM.
 
-%Initialization
+% Initialization
 close all; clc; clear;
 
+% (28 FEATURES SET)Initialization of random number for 28 Feature Set
 init = 54;
+% % (153 FEATURES SET)Initialization of random number for 153 Feature Set
+% init = 53;
+
 mySeed=RandStream.create('mt19937ar','seed',init);
 RandStream.setGlobalStream(mySeed);
 
@@ -19,17 +23,13 @@ RandStream.setGlobalStream(mySeed);
 % Loading data and set it to a variable.
 data = load('dataset.txt');
 
-% % Choosing only 1 and 2 labels
-% data = data(1:74,:);
-
-% % Randomize rows and ordering data according to randomized rows
-% order = randperm(size(data,1));
-% data = data(order,:);
-
 % Separate data into X and y. Last column is y and other columns are
 % features. (Second last column is dribbling or not classification).
 X = data(:,1:end-2);
 y = data(:,end);
+
+%% (28 FEATURES SET)This part should be used if feature selection process is aimed.
+% This part reduces feature set from 153 to 28.
 
 % Information Gain
 iGain = fsInfoGain(X, y);
@@ -57,14 +57,16 @@ intersection = sort([intersect(iGain_top, fisher_top), intersect(iGain_top, tTes
 
 X = X(:, intersection);
 
-%Feature Normalization
+% -------------(28 FEATURES SET FEATURE SELECTION END)------------------
+
+%% Feature Normalization
 prompt = 'Do you want to normalize data? (Yes: 1, No: 0) (Recommendation: Yes) \n';
 answer_norm = input(prompt);
 if answer_norm == 1
     [X, mu, sigma] = featureNormalize(X);
 end
 
-% SVM
+%% SVM
 % Split training and testing sets
 k = 10; % fold number
 cvFolds = crossvalind('Kfold', y, k); % Setting indices that determines fold groups
@@ -81,8 +83,11 @@ for i = 1:k                                  %# for each fold
     test_data = X(testIdx,:); % create test set
     test_label = y(testIdx,:); % create test labels
 
-    % Calling multisvm function to train svm and return test results
-    result = multisvm(train_data, train_label, test_data);
+    % (28 FEATURES SET)Calling multisvm function to train svm and return test results
+    result = multisvm(train_data, train_label, test_data, 2, 10);
+    
+%     % (153 FEATURES SET) Calling multisvm function to train svm and return test results 
+%     result = multisvm(train_data, train_label, test_data, 10, 10);
 
     % Calculating correct predictions of test set
     correctPredictions = result == test_label;
@@ -92,16 +97,15 @@ for i = 1:k                                  %# for each fold
     cp = classperf(cp, result, testIdx);
 end
 
-Accuracy = mean(testAccuracy)
-
-%# get accuracy
+% get accuracy
 correctRate = cp.CorrectRate
 
-%# get error
+% get error
 errorRate = cp.ErrorRate
 
-%# get confusion matrix
-%# columns:actual, rows:predicted, last-row: unclassified instances
+% get confusion matrix
+% columns:actual, rows:predicted, last-row: unclassified instances
 confusionMatrix = cp.CountingMatrix
 
+% calculating precision, recall and f1-score
 [precision, recall, f1score] = errorMetrics(confusionMatrix)

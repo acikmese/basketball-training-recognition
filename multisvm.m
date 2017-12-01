@@ -1,4 +1,4 @@
-function [result] = multisvm(TrainingSet,GroupTrain,TestSet)
+function [result] = multisvm(TrainingSet,GroupTrain,TestSet, sigma, C)
 %Models a given training set with a corresponding group vector and 
 %classifies a given test set using an SVM classifier according to a 
 %one vs. all relation. 
@@ -17,17 +17,10 @@ for k=1:numClasses
     %Vectorized statement that binarizes Group
     %where 1 is the current class and 0 is all other classes
     G1vAll=(GroupTrain==u(k));
-    % quadratic kernel
-%     models(k) = svmtrain(TrainingSet, G1vAll, 'Autoscale', true, 'Method','QP', ...
-%                 'Kernel_Function', 'quadratic', 'boxconstraint', 7);
 
-%     gaussian kernel
+%   gaussian kernel
     models(k) = svmtrain(TrainingSet, G1vAll, 'Autoscale', true, 'Method','QP', ...
-                'Kernel_Function', 'rbf', 'RBF_Sigma', 2, 'boxconstraint', 10);  
-
-%     % polynomial kernel        
-%     models(k) = svmtrain(TrainingSet, G1vAll, 'Autoscale', true, 'Method','QP', ...
-%                 'Kernel_Function', 'polynomial', 'polyorder', 2);     
+                'Kernel_Function', 'rbf', 'RBF_Sigma', sigma, 'boxconstraint', C);      
 end
 
 %classify test cases
