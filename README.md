@@ -1,5 +1,5 @@
 # basketball-training-recognition
-This is the source code of our recent work "Towards an Artificial Training Expert System for Basketball" published in ELECO2017. The paper is published online in [IEEEexplore](http://ieeexplore.ieee.org/document/8171641/).
+This is the source code of our recent work "Towards an Artificial Training Expert System for Basketball" published in ELECO2017. The paper is published online in [IEEEexplore](http://ieeexplore.ieee.org/document/8266220/).
 
 The dataset contains calculated 153 features in columns and every row is labeled as exercise types. Exercise types are labeled as numbers and their representations as follows:
 
